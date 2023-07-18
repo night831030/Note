@@ -2,10 +2,13 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 
 	"github.com/gorilla/mux"
 )
@@ -17,9 +20,17 @@ type Note struct {
 }
 
 func main() {
-	db, err := sql.Open("mysql", "root@tcp(localhost:3360)/MYSQL")
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("env file not found %v", err)
+	}
+
+	username := os.Getenv("MYSQL_USERNAME")
+	password := os.Getenv("MYSQL_PASSWORD")
+	connectString := fmt.Sprintf("%s:%s@tcp(localhost:3306)/notebook", username, password)
+
+	db, err := sql.Open("mysql", connectString)
 	if err != nil {
-		log.Fatalf("無法建立資料庫連結：%v\n", err)
+		log.Fatalf("sql connect fail: %v\n", err)
 	}
 	defer db.Close()
 

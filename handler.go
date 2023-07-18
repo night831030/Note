@@ -18,22 +18,25 @@ func NewHandler(db *sql.DB) *Handler {
 }
 
 func (h *Handler) GetNotes(w http.ResponseWriter, r *http.Request) {
-	notes := []Note{
-		{
-			ID:    1,
-			Title: "frist",
-			Text:  "some text",
-		},
-		{
-			ID:    2,
-			Title: "second",
-			Text:  "some text 2",
-		},
+	row, err := h.db.Query("SELECT * FROM note")
+	if err != nil {
+		log.Printf("sql select error: %v", err)
+		return
+	}
+
+	var notes []Note
+	for row.Next() {
+		note := Note{}
+		if err := row.Scan(&note.ID, &note.Title, &note.Text); err != nil {
+			log.Printf("sql scan is fail %v", err)
+			return
+		}
+
+		notes = append(notes, note)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(notes)
-	if err != nil {
-		log.Printf("Get error: %v", err)
+	if err := json.NewEncoder(w).Encode(notes); err != nil {
+		log.Printf("unable to ecode json error: %v", err)
 	}
 }

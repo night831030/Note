@@ -90,3 +90,21 @@ func (h *Handler) PostNote(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 }
+
+func (h *Handler) DeleteNote(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	noteID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.Printf("get note id fail: %v", err)
+		return
+	}
+
+	result, err := h.db.Exec("DELETE FROM note WHERE id = ?", noteID)
+	if err != nil {
+		log.Printf("sql delete fail: %v", err)
+		return
+	}
+	fmt.Println(result)
+
+	w.WriteHeader(http.StatusOK)
+}

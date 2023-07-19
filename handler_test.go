@@ -18,4 +18,5 @@ func TestGetNotes(t *testing.T) {
 
 	router := mux.NewRouter()
 	router.HandleFunc("note", GetNotes)
+	router.ServeHTTP(rpt, rqt)
 }

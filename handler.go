@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -49,6 +50,7 @@ func (h *Handler) GetNote(w http.ResponseWriter, r *http.Request) {
 	noteID, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		log.Printf("get note id fail: %v", err)
+		return
 	}
 
 	row, err := h.db.Query("SELECT * FROM note WHERE id = ?", noteID)
@@ -70,4 +72,21 @@ func (h *Handler) GetNote(w http.ResponseWriter, r *http.Request) {
 		log.Printf("unable to ecode json error: %v", err)
 	}
 
+}
+
+func (h *Handler) PostNote(w http.ResponseWriter, r *http.Request) {
+	note := Note{}
+	if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
+		log.Printf("get note fail: %v", err)
+		return
+	}
+
+	result, err := h.db.Exec("INSERT INTO Note (`list`,`log`) VALUES (`%s`,`%s`)", note.Title, note.Text)
+	if err != nil {
+		log.Printf("sql insert fail: %v", err)
+		return
+	}
+	fmt.Println(result)
+
+	w.WriteHeader(http.StatusCreated)
 }

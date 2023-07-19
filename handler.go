@@ -49,7 +49,7 @@ func (h *Handler) GetNote(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	noteID, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Printf("get note id fail: %v", err)
+		log.Printf("GET: get note id fail: %v", err)
 		return
 	}
 
@@ -91,11 +91,35 @@ func (h *Handler) PostNote(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+func (h *Handler) PutNote(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	noteID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.Printf("PUT: get note id fail: %v", err)
+		return
+	}
+
+	note := Note{}
+	if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
+		log.Printf("get note fail: %v", err)
+		return
+	}
+
+	result, err := h.db.Exec("UPDATE note SET title = ? , text = ? WHERE id = ?", note.Title, note.Text, noteID)
+	if err != nil {
+		log.Printf("sql update fail: %v", err)
+		return
+	}
+	fmt.Println(result)
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func (h *Handler) DeleteNote(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	noteID, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Printf("get note id fail: %v", err)
+		log.Printf("DELETE: get note id fail: %v", err)
 		return
 	}
 

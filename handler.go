@@ -81,7 +81,7 @@ func (h *Handler) PostNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := h.db.Exec("INSERT INTO Note (`list`,`log`) VALUES (`%s`,`%s`)", note.Title, note.Text)
+	result, err := h.db.Exec("INSERT INTO Note (`title`,`text`) VALUES ( ? , ? )", note.Title, note.Text)
 	if err != nil {
 		log.Printf("sql insert fail: %v", err)
 		return

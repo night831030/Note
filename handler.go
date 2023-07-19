@@ -58,6 +58,7 @@ func (h *Handler) GetNote(w http.ResponseWriter, r *http.Request) {
 		log.Printf("sql select error: %v", err)
 		return
 	}
+	defer row.Close()
 
 	note := Note{}
 	for row.Next() {
@@ -65,6 +66,10 @@ func (h *Handler) GetNote(w http.ResponseWriter, r *http.Request) {
 			log.Printf("sql scan is fail %v", err)
 			return
 		}
+	}
+	if note.ID == 0 {
+		log.Printf("note not found, ID: %v", noteID)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

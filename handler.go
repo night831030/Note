@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type Handler struct {
@@ -39,4 +42,32 @@ func (h *Handler) GetNotes(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(notes); err != nil {
 		log.Printf("unable to ecode json error: %v", err)
 	}
+}
+
+func (h *Handler) GetNote(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	noteID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.Printf("get note id fail: %v", err)
+	}
+
+	row, err := h.db.Query("SELECT * FROM note WHERE id = ?", noteID)
+	if err != nil {
+		log.Printf("sql select error: %v", err)
+		return
+	}
+
+	note := Note{}
+	for row.Next() {
+		if err := row.Scan(&note.ID, &note.Title, &note.Text); err != nil {
+			log.Printf("sql scan is fail %v", err)
+			return
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(note); err != nil {
+		log.Printf("unable to ecode json error: %v", err)
+	}
+
 }

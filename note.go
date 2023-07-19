@@ -39,6 +39,7 @@ func main() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/note", handler.GetNotes).Methods("GET")
+	router.HandleFunc("/note/{id}", handler.GetNote).Methods("GET")
 	// router.HandleFunc("/note", PostNote).Methods("POST")
 	// router.HandleFunc("/note/{id}", PutNote).Methods("PUT")
 	// router.HandleFunc("/note/{id}", PatchNote).Methods("PATCH")

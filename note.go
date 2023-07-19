@@ -42,7 +42,7 @@ func main() {
 	router.HandleFunc("/note/{id}", handler.GetNote).Methods("GET")
 	router.HandleFunc("/note", handler.PostNote).Methods("POST")
 	router.HandleFunc("/note/{id}", handler.PutNote).Methods("PUT")
-	// router.HandleFunc("/note/{id}", PatchNote).Methods("PATCH")
+	router.HandleFunc("/note/{id}", handler.PatchNote).Methods("PATCH")
 	router.HandleFunc("/note/{id}", handler.DeleteNote).Methods("DELETE")
 
 	http.ListenAndServe("localhost:8080", router)

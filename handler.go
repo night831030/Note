@@ -115,6 +115,39 @@ func (h *Handler) PutNote(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func (h *Handler) PatchNote(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	noteID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.Printf("PATCH: get note id fail: %v", err)
+		return
+	}
+
+	note := Note{}
+	if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
+		log.Printf("get note fail: %v", err)
+		return
+	}
+
+	if note.Title == "" {
+		result, err := h.db.Exec("UPDATE note SET text = ? WHERE id = ?", note.Text, noteID)
+		if err != nil {
+			log.Printf("sql update fail: %v", err)
+			return
+		}
+		fmt.Println(result)
+	} else if note.Text == "" {
+		result, err := h.db.Exec("UPDATE note SET title = ? WHERE id = ?", note.Title, noteID)
+		if err != nil {
+			log.Printf("sql update fail: %v", err)
+			return
+		}
+		fmt.Println(result)
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func (h *Handler) DeleteNote(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	noteID, err := strconv.Atoi(vars["id"])
